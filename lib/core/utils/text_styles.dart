@@ -15,4 +15,8 @@ class AppTextStyles {
       fontWeight: FontWeight.w400, fontSize: 18, color: ColorsManager.black);
   static TextStyle elevatedButtonText =
       TextStyle(fontWeight: FontWeight.w500, fontSize: 20, color: Colors.white);
+  static TextStyle taskTitle = TextStyle(
+      fontWeight: FontWeight.w700, fontSize: 18, color: ColorsManager.blue);
+  static TextStyle taskDescription = TextStyle(
+      fontWeight: FontWeight.w700, fontSize: 16, color: ColorsManager.black);
 }

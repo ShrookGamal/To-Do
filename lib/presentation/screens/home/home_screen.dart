@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
+        toolbarHeight: 100,
         title: Text(
           'To Do List',
         ),
