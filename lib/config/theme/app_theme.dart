@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:to_do/core/utils/text_styles.dart';
+
 import '../../core/utils/colors_manager.dart';
 
 class AppTheme {
   static ThemeData light = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+          seedColor: ColorsManager.blue,
+          primary: ColorsManager.blue,
+          onPrimary: Colors.white),
       appBarTheme: AppBarTheme(
           elevation: 0,
           shadowColor: Colors.transparent,
@@ -37,5 +42,6 @@ class AppTheme {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
         elevation: MaterialStateProperty.all<double>(10),
       )));
+
   static ThemeData dark = ThemeData();
 }
