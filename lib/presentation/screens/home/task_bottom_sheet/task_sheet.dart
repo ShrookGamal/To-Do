@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:to_do/core/utils/date_style.dart';
-
 import '../../../../core/utils/text_styles.dart';
 
 class TaskSheet extends StatefulWidget {
@@ -16,7 +16,9 @@ class _TaskSheetState extends State<TaskSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      width: 412.w,
+      height: 350.h,
+      padding: REdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -24,7 +26,7 @@ class _TaskSheetState extends State<TaskSheet> {
               textAlign: TextAlign.center,
               style: AppTextStyles.taskSheetTitleTextStyle),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             decoration: InputDecoration(
@@ -32,7 +34,7 @@ class _TaskSheetState extends State<TaskSheet> {
                 hintStyle: AppTextStyles.hintTextStyle),
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           TextFormField(
             decoration: InputDecoration(
@@ -40,14 +42,14 @@ class _TaskSheetState extends State<TaskSheet> {
                 hintStyle: AppTextStyles.hintTextStyle),
           ),
           SizedBox(
-            height: 20,
+            height: 20.h,
           ),
           Text(
             'Select Date ',
-            style: AppTextStyles.DateLabelTextStyle,
+            style: AppTextStyles.dateLabelTextStyle,
           ),
           SizedBox(
-            height: 8,
+            height: 8.h,
           ),
           InkWell(
               onTap: () {

@@ -57,6 +57,12 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
   void showBottomSheet() {
-    showModalBottomSheet(context: context, builder: (context) => TaskSheet());
+    showModalBottomSheet(
+        context: context,
+        builder: (context) => Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: TaskSheet(),
+            ),
+        isScrollControlled: true);
   }
 }

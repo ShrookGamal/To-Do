@@ -1,5 +1,6 @@
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:to_do/core/utils/colors_manager.dart';
 import 'package:to_do/presentation/screens/home/tabs/tasks_tab/widgets/task_item.dart';
 
@@ -15,11 +16,11 @@ class _TasksTabState extends State<TasksTab> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(color: ColorsManager.blue, height: 40),
+        Container(color: ColorsManager.blue, height: 100.h),
         Column(
           children: [
             buildCalenderTimeLine(),
-            SizedBox(height: 8),
+            SizedBox(height: 15.h),
             TaskItem(),
           ],
         ),
@@ -31,13 +32,17 @@ class _TasksTabState extends State<TasksTab> {
         initialDate: DateTime.now(),
         onDateChange: (selectedDate) {},
         headerProps: const EasyHeaderProps(
-          showHeader: false,
+          showHeader: true,
           monthPickerType: MonthPickerType.switcher,
           dateFormatter: DateFormatter.fullDateDayAsStrMY(),
+          monthStyle: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16),
+          selectedDateStyle: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16),
         ),
         dayProps: EasyDayProps(
-          height: 75,
-          width: 50,
+          height: 79.h,
+          width: 58.w,
           dayStructure: DayStructure.dayStrDayNum,
           activeDayStyle: DayStyle(
             dayNumStyle: TextStyle(
