@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:to_do/presentation/screens/home/tabs/settings_tab/settings_tab.dart';
 import 'package:to_do/presentation/screens/home/tabs/tasks_tab/tasks_tab.dart';
 import 'package:to_do/presentation/screens/home/task_bottom_sheet/task_sheet.dart';
@@ -11,9 +12,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  GlobalKey<TasksTabState> tasksTabKey = GlobalKey();
   int currentIndex = 0;
+  List<Widget> tabs = [];
 
-  List<Widget> tabs = [TasksTab(), SettingsTab()];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tabs = [
+      TasksTab(
+        key: tasksTabKey,
+      ),
+      SettingsTab()
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         toolbarHeight: 100,
         title: Text(
-          'To Do List',
+          AppLocalizations.of(context)!.appTitle,
         ),
       ),
       bottomNavigationBar: buildBottomNavBar(),
@@ -38,9 +51,12 @@ class _HomeScreenState extends State<HomeScreen> {
             currentIndex: currentIndex,
             onTap: onTap,
             items: [
-              BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Tasks'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.settings), label: 'Settings'),
+                  icon: const Icon(Icons.list),
+                  label: AppLocalizations.of(context)!.tasks),
+              BottomNavigationBarItem(
+                  icon: const Icon(Icons.settings),
+                  label: AppLocalizations.of(context)!.settings),
             ]),
       );
 
@@ -50,18 +66,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildFAB() => FloatingActionButton(
-        onPressed: () {
-          showBottomSheet();
+        onPressed: () async {
+          await showBottomSheet();
+          tasksTabKey.currentState?.getTodoFromFireStore();
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       );
 
-  void showBottomSheet() {
-    showModalBottomSheet(
+  Future showBottomSheet() {
+    return showModalBottomSheet(
         context: context,
         builder: (context) => Padding(
               padding: MediaQuery.of(context).viewInsets,
-              child: TaskSheet(),
+              child: const TaskSheet(),
             ),
         isScrollControlled: true);
   }

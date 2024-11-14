@@ -1,20 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do/core/utils/colors_manager.dart';
 import 'package:to_do/core/utils/date_style.dart';
+import 'package:to_do/database_manager/models/todo_dm.dart';
 
 import '../../../../../../core/utils/text_styles.dart';
+import '../../../../../../database_manager/models/users_dm.dart';
+import '../../../../../../providers/settings_provider.dart';
+import 'edit_task.dart';
 
-class TaskItem extends StatelessWidget {
-  const TaskItem({super.key});
+class TaskItem extends StatefulWidget {
+  TaskItem({super.key, required this.todo, required this.onDeletedTask});
+
+  TodoDM todo;
+
+  Function onDeletedTask;
 
   @override
+  State<TaskItem> createState() => _TaskItemState();
+}
+
+class _TaskItemState extends State<TaskItem> {
+  @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<SettingsProvider>(context);
+    bool isLight = provider.isLight();
     return Container(
       margin: REdgeInsets.all(8),
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onPrimary,
+          color: provider.isLight()
+              ? Theme.of(context).colorScheme.onPrimary
+              : ColorsManager.darkBlack,
           borderRadius: BorderRadius.circular(15)),
       child: Slidable(
         startActionPane: ActionPane(
@@ -24,18 +44,30 @@ class TaskItem extends StatelessWidget {
               backgroundColor: Color(0xFFFE4A49),
               foregroundColor: Colors.white,
               icon: Icons.delete,
-              label: 'Delete',
+              label: AppLocalizations.of(context)!.delete,
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10),
                   bottomLeft: Radius.circular(10)),
-              onPressed: (BuildContext context) {},
+              onPressed: (BuildContext context) {
+                deleteTaskFromFireStore(widget.todo);
+                widget.onDeletedTask();
+              },
             ),
             SlidableAction(
               backgroundColor: ColorsManager.blue,
               foregroundColor: Colors.white,
               icon: Icons.edit,
-              label: 'Edit',
-              onPressed: (BuildContext context) {},
+              label: AppLocalizations.of(context)!.edit,
+              onPressed: (BuildContext context) {
+                if (widget.todo.isDone == false) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EditTask(
+                                todoDM: widget.todo,
+                              )));
+                }
+              },
             ),
           ],
         ),
@@ -48,49 +80,102 @@ class TaskItem extends StatelessWidget {
                 Container(
                   width: 4.w,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: widget.todo.isDone
+                          ? ColorsManager.green
+                          : Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(10)),
                 ),
-                SizedBox(width: 10.w),
+                SizedBox(width: 15.w),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Task Title ',
-                      style: AppTextStyles.taskTitle,
+                      widget.todo.title,
+                      style: widget.todo.isDone
+                          ? AppTextStyles.doneTaskTitle
+                          : AppTextStyles.taskTitle,
                     ),
                     SizedBox(
                       height: 4.h,
                     ),
                     Text(
-                      'Task Description ',
-                      style: AppTextStyles.taskDescription,
+                      widget.todo.description,
+                      style: widget.todo.isDone
+                          ? AppTextStyles.doneTaskDes
+                          : AppTextStyles.taskDescription(isLight),
                     ),
                     SizedBox(
                       height: 4.h,
                     ),
-                    Text(
-                      DateTime.now().toFormattedDate(),
-                      style: AppTextStyles.dateLabelTextStyle,
-                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.timer_outlined,
+                          color: provider.isLight()
+                              ? ColorsManager.black
+                              : Colors.white,
+                        ),
+                        Text(
+                          widget.todo.dateTime.toFormattedDate(),
+                          style: TextStyle(
+                              color: provider.isLight()
+                                  ? ColorsManager.black
+                                  : Colors.white),
+                        )
+                      ],
+                    )
                   ],
                 ),
                 Spacer(),
-                Container(
-                    padding: REdgeInsets.symmetric(horizontal: 12, vertical: 3),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Icon(
-                      Icons.check,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      size: 35,
-                    ))
+                InkWell(
+                  onTap: () {
+                    onTapDone();
+                    setState(() {});
+                  },
+                  child: Container(
+                      padding:
+                          REdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                      decoration: BoxDecoration(
+                          color: widget.todo.isDone
+                              ? Colors.transparent
+                              : Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: widget.todo.isDone
+                          ? Text(
+                              AppLocalizations.of(context)!.doneTask,
+                              style: AppTextStyles.doneTaskTitle,
+                            )
+                          : Icon(
+                              Icons.check,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              size: 35,
+                            )),
+                )
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  deleteTaskFromFireStore(TodoDM todoDM) async {
+    CollectionReference collectionReference = FirebaseFirestore.instance
+        .collection(UserDM.collectionName)
+        .doc(UserDM.currentUser!.id)
+        .collection(TodoDM.collectionName);
+    DocumentReference documentReference =
+        collectionReference.doc(widget.todo.id);
+    await documentReference.delete();
+  }
+
+  Future<void> onTapDone() async {
+    widget.todo.isDone = true;
+    await FirebaseFirestore.instance
+        .collection(UserDM.collectionName)
+        .doc(UserDM.currentUser!.id)
+        .collection(TodoDM.collectionName)
+        .doc(widget.todo.id)
+        .update({'isDone': true});
   }
 }
